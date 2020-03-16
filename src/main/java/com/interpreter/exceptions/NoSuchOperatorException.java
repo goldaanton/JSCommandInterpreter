@@ -1,6 +1,6 @@
 package com.interpreter.exceptions;
 
-public class NoSuchOperatorException extends RuntimeException{
+public class NoSuchOperatorException extends RuntimeException {
 
     private String name;
 

@@ -3,6 +3,7 @@ package com.interpreter.solvers;
 import com.interpreter.exceptions.InvalidSyntaxException;
 import com.interpreter.exceptions.NoSuchProcedureNameException;
 import com.interpreter.nodes.*;
+import com.interpreter.nodes.procedures.*;
 import com.interpreter.token.Token;
 import com.interpreter.token.TokenType;
 
@@ -120,40 +121,118 @@ public class Parser {
         return new AssignExpression((VarExpression) left, right);
     }
 
+    private List<AbstractExpression> getParameters() {
+        /*
+         *      parameters : (factor (COMMA factor)*)*
+         */
+
+        List<AbstractExpression> parameters = new ArrayList<>();
+        if (currentToken.getType() != TokenType.R_PARENTHESIS) {
+            parameters.add(factor());
+        }
+
+        while (currentToken.getType() != TokenType.R_PARENTHESIS) {
+            eat(TokenType.COMMA);
+            parameters.add(factor());
+        }
+
+        return parameters;
+    }
+
     private AbstractExpression procedureStatement() {
+        /*
+         *      procedure_statement : PROCEDURE L_PARENTHESIS parameters R_PARENTHESIS
+         */
 
-        Token token = currentToken;
+        Token procedure = currentToken;
         eat(TokenType.PROCEDURE);
+        eat(TokenType.L_PARENTHESIS);
+        List<AbstractExpression> parameters = getParameters();
+        eat(TokenType.R_PARENTHESIS);
 
-        switch (token.getValue(String.class).orElseThrow(RuntimeException::new)) {
+        switch (procedure.getValue(String.class).orElseThrow(RuntimeException::new)) {
             case "print":
-                return new PrintProcedureExpression(token);
+                return new PrintProcedureExpression(parameters);
             case "openPage":
-                return new OpenPageProcedureExpression(token);
-            case "pressButton":
-                return new PressButtonProcedureExpression(token);
+                return new OpenPageProcedureExpression(parameters);
+            case "click":
+                return new ClickProcedureExpression(parameters);
             case "setText":
-                return new SetTextProcedureExpression(token);
+                return new SetTextProcedureExpression(parameters);
             case "closePage":
                 return new ClosePageProcedureExpression();
             default:
-                throw new NoSuchProcedureNameException(token.getValue(String.class).orElse(""));
+                throw new NoSuchProcedureNameException(procedure.getValue(String.class).orElseThrow(RuntimeException::new));
         }
+    }
+
+    private AbstractExpression conditionalStatement() {
+        /*
+         *      conditionalStatement : IF L_PARENTHESIS conditional R_PARENTHESIS compound (ELSE compound)?
+         *      conditional : factor (LESS | MORE) factor ((AND | OR) conditional)*
+         */
+
+        List<AbstractExpression> elements = new ArrayList<>();
+        List<Token> signs = new ArrayList<>();
+        List<Token> separators = new ArrayList<>();
+
+        eat(TokenType.IF);
+        eat(TokenType.L_PARENTHESIS);
+
+        while (currentToken.getType() != TokenType.R_PARENTHESIS) {
+            elements.add(factor());
+
+            Token sign = currentToken;
+            if (sign.getType() == TokenType.MORE) {
+                eat(TokenType.MORE);
+            } else {
+                eat(TokenType.LESS);
+            }
+            signs.add(sign);
+
+            elements.add(factor());
+
+            if (currentToken.getType() == TokenType.AND || currentToken.getType() == TokenType.OR) {
+                sign = currentToken;
+                if (currentToken.getType() == TokenType.AND) {
+                    eat(TokenType.AND);
+                } else {
+                    eat(TokenType.OR);
+                }
+                separators.add(sign);
+            }
+        }
+
+        eat(TokenType.R_PARENTHESIS);
+
+        AbstractExpression ifCompound = compoundStatement();
+
+        if (currentToken.getType() == TokenType.ELSE) {
+            eat(TokenType.ELSE);
+            AbstractExpression elseCompound = compoundStatement();
+            return new ConditionalExpression(elements, signs, separators, ifCompound, elseCompound);
+        }
+
+        return new ConditionalExpression(elements, signs, separators, ifCompound);
     }
 
     private AbstractExpression statement() {
         /*
-         *      statement : compound_statement | assignment_statement | empty
+         *      statement : compound_statement | assignment_statement | procedure | conditional | empty
          */
 
-        if (currentToken.getType() == TokenType.BEGIN)
-            return compoundStatement();
-        else if (currentToken.getType() == TokenType.ID)
-            return assignmentStatement();
-        else if (currentToken.getType() == TokenType.PROCEDURE)
-            return procedureStatement();
-        else
-            return empty();
+        switch (currentToken.getType()) {
+            case BEGIN:
+                return compoundStatement();
+            case ID:
+                return assignmentStatement();
+            case PROCEDURE:
+                return procedureStatement();
+            case IF:
+                return conditionalStatement();
+            default:
+                return empty();
+        }
     }
 
     private ArrayList<AbstractExpression> statementList() {

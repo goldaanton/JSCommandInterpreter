@@ -22,10 +22,17 @@ public enum TokenType {
     DOUBLE('f'),
     STRING('s'),
 
-    BEGIN('{'),
-    END('}'),
     PROGRAM('p'),
     VAR('v'),
+    BEGIN('{'),
+    END('}'),
+
+    IF('c'),
+    ELSE('1'),
+    MORE('>'),
+    LESS('<'),
+    AND('&'),
+    OR('|'),
 
     ID('d'),
     PROCEDURE('_'),

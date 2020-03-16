@@ -25,12 +25,27 @@ public class Lexer {
         Token intToken = new Token(TokenType.INTEGER, "int");
         Token doubleToken = new Token(TokenType.DOUBLE, "double");
         Token strToken = new Token(TokenType.STRING, "string");
+        Token printProcedureToken = new Token(TokenType.PROCEDURE, "print");
+        Token clickProcedureToken = new Token(TokenType.PROCEDURE, "click");
+        Token closePageProcedureToken = new Token(TokenType.PROCEDURE, "closePage");
+        Token openPageProcedureToken = new Token(TokenType.PROCEDURE, "openPage");
+        Token setTextProcedureToken = new Token(TokenType.PROCEDURE, "setText");
+        Token ifToken = new Token(TokenType.IF, "if");
+        Token elseToken = new Token(TokenType.ELSE, "else");
+
 
         temporaryMap.put(programToken.getValue(String.class).orElseThrow(RuntimeException::new), programToken);
         temporaryMap.put(varToken.getValue(String.class).orElseThrow(RuntimeException::new), varToken);
         temporaryMap.put(intToken.getValue(String.class).orElseThrow(RuntimeException::new), intToken);
         temporaryMap.put(doubleToken.getValue(String.class).orElseThrow(RuntimeException::new), doubleToken);
         temporaryMap.put(strToken.getValue(String.class).orElseThrow(RuntimeException::new), strToken);
+        temporaryMap.put(printProcedureToken.getValue(String.class).orElseThrow(RuntimeException::new), printProcedureToken);
+        temporaryMap.put(clickProcedureToken.getValue(String.class).orElseThrow(RuntimeException::new), clickProcedureToken);
+        temporaryMap.put(closePageProcedureToken.getValue(String.class).orElseThrow(RuntimeException::new), closePageProcedureToken);
+        temporaryMap.put(openPageProcedureToken.getValue(String.class).orElseThrow(RuntimeException::new), openPageProcedureToken);
+        temporaryMap.put(setTextProcedureToken.getValue(String.class).orElseThrow(RuntimeException::new), setTextProcedureToken);
+        temporaryMap.put(ifToken.getValue(String.class).orElseThrow(RuntimeException::new), ifToken);
+        temporaryMap.put(elseToken.getValue(String.class).orElseThrow(RuntimeException::new), elseToken);
 
         RESERVED_KEYWORDS = Collections.unmodifiableMap(temporaryMap);
     }
@@ -104,30 +119,6 @@ public class Lexer {
         return RESERVED_KEYWORDS.getOrDefault(result.toString(), new Token(TokenType.ID, result.toString()));
     }
 
-    private Token getProcedure() {
-        StringBuilder result = new StringBuilder();
-
-        while (currentChar != NONE && Character.isLetterOrDigit(currentChar)) {
-            result.append(currentChar);
-            advance();
-        }
-
-        advance();
-        advance();
-
-        StringBuilder param = new StringBuilder();
-
-        while (currentChar != '\'') {
-            param.append(currentChar);
-            advance();
-        }
-
-        advance();
-        advance();
-
-        return new Token(TokenType.PROCEDURE, result.toString(), param.toString());
-    }
-
     public Token getNextToken() {
         if (Character.isWhitespace(currentChar))
             skipWhiteSpaces();
@@ -143,10 +134,6 @@ public class Lexer {
             advance();
             return getString();
         }
-        if(currentChar == '_') {
-            advance();
-            return getProcedure();
-        }
 
         Token token = new Token(TokenType.getTokenTypeByAbbreviation(currentChar));
         advance();
@@ -154,11 +141,11 @@ public class Lexer {
         return token;
     }
 
-    /*private char peek() {
+    private char peek() {
         int peekPos = ++pos;
-        if(peekPos >= expression.length())
+        if (peekPos >= expression.length())
             return NONE;
         else
             return expression.charAt(peekPos);
-    }*/
+    }
 }

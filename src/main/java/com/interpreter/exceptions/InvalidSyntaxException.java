@@ -1,6 +1,6 @@
 package com.interpreter.exceptions;
 
-public class InvalidSyntaxException extends RuntimeException{
+public class InvalidSyntaxException extends RuntimeException {
 
     private String name;
 

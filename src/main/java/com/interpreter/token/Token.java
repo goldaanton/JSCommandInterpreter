@@ -8,17 +8,6 @@ public class Token {
 
     private TokenType type;
     private Object value;
-    private String parameters;
-
-    public Token(TokenType type, Object value, String parameters) {
-        this.type = type;
-        this.value = value;
-        this.parameters = parameters;
-    }
-
-    public String getParameters() {
-        return parameters;
-    }
 
     public Token(TokenType type, Object value) {
         this.type = type;

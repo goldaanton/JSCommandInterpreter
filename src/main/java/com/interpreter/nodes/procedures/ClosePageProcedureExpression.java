@@ -1,4 +1,4 @@
-package com.interpreter.nodes;
+package com.interpreter.nodes.procedures;
 
 import com.interpreter.semanticanalyzer.SymbolTable;
 import com.interpreter.solvers.Context;
@@ -6,6 +6,8 @@ import com.interpreter.solvers.Context;
 import java.util.Optional;
 
 public class ClosePageProcedureExpression extends ProcedureExpression {
+
+
     @Override
     public void analyzeNode(SymbolTable symbolTable) {
     }
