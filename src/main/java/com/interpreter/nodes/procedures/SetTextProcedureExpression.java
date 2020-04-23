@@ -10,8 +10,6 @@ import java.util.Optional;
 
 public class SetTextProcedureExpression extends ProcedureExpression {
 
-    private List<AbstractExpression> parameters;
-
     public SetTextProcedureExpression(List<AbstractExpression> parameters) {
         this.parameters = parameters;
     }

@@ -40,9 +40,34 @@ public class ConditionalExpression implements AbstractExpression {
 
     @Override
     public Optional<?> solve(Context context) {
+
+        if (separators.size() == 1) {
+            int left = ((Optional<Integer>) elements.get(0).solve(context))
+                    .orElseThrow(RuntimeException::new);
+
+            int right = ((Optional<Integer>) elements.get(1).solve(context))
+                    .orElseThrow(RuntimeException::new);
+
+            if (separators.get(0).getType() == TokenType.OR) {
+                if ((signs.get(0).getType() == TokenType.LESS && left < right) ||
+                        (signs.get(0).getType() == TokenType.MORE && left > right)) {
+                    ifCompound.solve(context);
+                    return Optional.empty();
+                }
+            } else {
+                if ((signs.get(0).getType() == TokenType.LESS && left > right) ||
+                        (signs.get(0).getType() == TokenType.MORE && left < right)) {
+                    if (elseCompound != null) {
+                        elseCompound.solve(context);
+                    }
+                    return Optional.empty();
+                }
+            }
+        }
+
         List<Boolean> results = new ArrayList<>();
 
-        int sign = 0;
+        int signN = 0;
         for (int i = 0; i < elements.size() - 1; i += 2) {
             int left = ((Optional<Integer>) elements.get(i).solve(context))
                     .orElseThrow(RuntimeException::new);
@@ -50,15 +75,16 @@ public class ConditionalExpression implements AbstractExpression {
             int right = ((Optional<Integer>) elements.get(i + 1).solve(context))
                     .orElseThrow(RuntimeException::new);
 
-            if ((signs.get(sign).getType() == TokenType.LESS && left < right) || (signs.get(sign).getType() == TokenType.MORE && left > right))
+            if ((signs.get(signN).getType() == TokenType.LESS && left < right) ||
+                    (signs.get(signN).getType() == TokenType.MORE && left > right))
                 results.add(true);
             else
                 results.add(false);
-            sign++;
+            signN++;
         }
 
         boolean prev = results.get(0);
-        boolean result = false;
+        boolean result = prev;
 
         for (int i = 1; i < results.size(); i++) {
             result = (separators.get(i - 1).getType() == TokenType.AND && prev && results.get(i) ||
@@ -75,3 +101,4 @@ public class ConditionalExpression implements AbstractExpression {
         return Optional.empty();
     }
 }
+

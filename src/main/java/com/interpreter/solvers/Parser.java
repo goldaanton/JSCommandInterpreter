@@ -275,7 +275,7 @@ public class Parser {
 
     private TypeExpression typeSpecification() {
         /*
-         * type_spec : INTEGER | REAL
+         * type_spec : INTEGER | DOUBLE | STRING
          */
 
         Token token = currentToken;

@@ -12,8 +12,6 @@ import java.util.concurrent.TimeUnit;
 
 public class OpenPageProcedureExpression extends ProcedureExpression {
 
-    private List<AbstractExpression> parameters;
-
     public OpenPageProcedureExpression(List<AbstractExpression> parameters) {
         this.parameters = parameters;
     }

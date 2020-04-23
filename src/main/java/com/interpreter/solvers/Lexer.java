@@ -70,7 +70,7 @@ public class Lexer {
     }
 
     private void skipComment() {
-        while (currentChar != ']')
+        while (currentChar != '~')
             advance();
         currentChar = ';';
     }
@@ -126,7 +126,7 @@ public class Lexer {
             return getNumberToken();
         if (Character.isAlphabetic(currentChar))
             return id();
-        if (currentChar == '[') {
+        if (currentChar == '~') {
             advance();
             skipComment();
         }

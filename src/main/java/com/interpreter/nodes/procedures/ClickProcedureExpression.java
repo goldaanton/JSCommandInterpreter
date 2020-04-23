@@ -10,8 +10,6 @@ import java.util.Optional;
 
 public class ClickProcedureExpression extends ProcedureExpression {
 
-    private List<AbstractExpression> parameters;
-
     public ClickProcedureExpression(List<AbstractExpression> parameters) {
         this.parameters = parameters;
     }
